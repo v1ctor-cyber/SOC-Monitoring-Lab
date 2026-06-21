@@ -1,0 +1,10 @@
+=== ALERTA SOC ===
+
+Data: 21/06/2026 14:37:25
+Total de falhas: 7
+
+Usuários:
+- -: 7
+
+IPs:
+- 127.0.0.1: 7
