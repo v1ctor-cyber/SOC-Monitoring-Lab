@@ -33,3 +33,22 @@ SOC-Monitoring-Lab/
 ├── scripts/
 │   └── detector_bruteforce.py
 └── README.md
+```
+
+## Evidências
+
+### 1. Eventos 4625 detectados
+
+![Eventos 4625](screenshots/01_event_overview.png)
+
+### 2. Investigação detalhada do evento
+
+![Detalhes do Evento](screenshots/02_event_details.png)
+
+### 3. Execução do detector
+
+![Detector](screenshots/03_detector_execution.png)
+
+### 4. Relatório gerado automaticamente
+
+![Relatório](screenshots/04_alert_report.png)
