@@ -52,3 +52,16 @@ SOC-Monitoring-Lab/
 ### 4. Relatório gerado automaticamente
 
 ![Relatório](screenshots/04_alert_report.png)
+
+## Resultados
+
+Durante os testes foram geradas múltiplas tentativas de autenticação inválidas para produzir eventos 4625 no Windows Security Log.
+
+O detector identificou:
+
+* 7 falhas de login
+* Origem: 127.0.0.1
+* Tipo de logon: 2 (logon local)
+
+Após a análise dos eventos, foi gerado automaticamente um relatório contendo os indicadores observados.
+
