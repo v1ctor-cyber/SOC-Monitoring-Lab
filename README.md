@@ -85,3 +85,12 @@ O detector identifica:
 #### Relatório gerado
 
 ![Relatório 4720](screenshots/06_user_creation_report.png)
+
+## Resultados
+
+Durante os testes foram identificadas:
+
+- 7 falhas de autenticação (Event ID 4625)
+- 2 contas criadas (Event ID 4720)
+
+Os eventos foram processados automaticamente pelos scripts Python, gerando relatórios SOC contendo usuários, IPs, timestamps e indicadores relevantes para investigação.
