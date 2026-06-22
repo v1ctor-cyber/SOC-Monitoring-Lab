@@ -94,3 +94,24 @@ Durante os testes foram identificadas:
 - 2 contas criadas (Event ID 4720)
 
 Os eventos foram processados automaticamente pelos scripts Python, gerando relatórios SOC contendo usuários, IPs, timestamps e indicadores relevantes para investigação.
+
+## Monitoramento de Alteração em Grupos (Event ID 4728)
+
+O laboratório monitora alterações em grupos locais do Windows para identificar possíveis elevações de privilégio e mudanças de acesso.
+
+O detector identifica:
+
+- Usuário adicionado ao grupo
+- Grupo afetado
+- Usuário responsável pela alteração
+- Data e hora do evento
+
+### Evidências
+
+#### Execução do detector
+
+![Detector 4728](screenshots/07_group_change_detector.png)
+
+#### Relatório gerado
+
+![Relatório 4728](screenshots/08_group_change_report.png)
