@@ -27,14 +27,15 @@ Este projeto simula atividades realizadas por um analista SOC L1, usando logs re
 
 ```text
 SOC-Monitoring-Lab/
-├── logs/
-reports/
- ├ alerta_bruteforce.txt
- ├ contas_criadas.txt
- └ grupos_privilegiados.txt
+├── reports/
+│   ├── alerta_bruteforce.txt
+│   ├── contas_criadas.txt
+│   └── grupos_privilegiados.txt
 ├── screenshots/
 ├── scripts/
-│   └── detector_bruteforce.py
+│   ├── detector_bruteforce.py
+│   ├── detector_usuario_criado.py
+│   └── detector_grupo_privilegiado.py
 └── README.md
 ```
 
