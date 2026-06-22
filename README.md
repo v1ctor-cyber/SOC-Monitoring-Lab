@@ -8,12 +8,13 @@ Este projeto simula atividades realizadas por um analista SOC L1, usando logs re
 
 ## Funcionalidades
 
-- Análise de eventos do Windows Security Log
-- Detecção de falhas de login
-- Monitoramento do Event ID 4625
+- Monitoramento de falhas de autenticação (Event ID 4625)
+- Monitoramento de criação de usuários (Event ID 4720)
+- Monitoramento de alterações em grupos (Event ID 4728)
 - Identificação de usuários envolvidos
 - Identificação de IPs de origem
-- Geração automática de relatório de alerta
+- Geração automática de relatórios SOC
+- Investigação de eventos do Windows Security Log
 
 ## Tecnologias utilizadas
 
@@ -27,8 +28,10 @@ Este projeto simula atividades realizadas por um analista SOC L1, usando logs re
 ```text
 SOC-Monitoring-Lab/
 ├── logs/
-├── reports/
-│   └── alerta_bruteforce.txt
+reports/
+ ├ alerta_bruteforce.txt
+ ├ contas_criadas.txt
+ └ grupos_privilegiados.txt
 ├── screenshots/
 ├── scripts/
 │   └── detector_bruteforce.py
