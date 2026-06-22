@@ -1,0 +1,15 @@
+=== ALERTA SOC - CRIAÇÃO DE USUÁRIO ===
+
+Data do relatório: 22/06/2026 19:52:28
+Total de contas criadas detectadas: 2
+
+Conta criada : CodexSandboxOnline
+Domínio      : DESKTOP-5IBE0AN
+Criada por   : vitin
+Data evento  : 16/06/2026 20:10:13
+----------------------------------------
+Conta criada : CodexSandboxOffline
+Domínio      : DESKTOP-5IBE0AN
+Criada por   : vitin
+Data evento  : 16/06/2026 20:10:13
+----------------------------------------
