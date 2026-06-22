@@ -65,3 +65,23 @@ O detector identificou:
 
 Após a análise dos eventos, foi gerado automaticamente um relatório contendo os indicadores observados.
 
+## Monitoramento de Criação de Usuários (Event ID 4720)
+
+O laboratório também monitora eventos de criação de contas locais no Windows.
+
+O detector identifica:
+
+- Usuário criado
+- Domínio
+- Usuário responsável pela criação
+- Data e hora do evento
+
+### Evidências
+
+#### Execução do detector
+
+![Detector 4720](screenshots/05_user_creation_detector.png)
+
+#### Relatório gerado
+
+![Relatório 4720](screenshots/06_user_creation_report.png)
