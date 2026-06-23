@@ -1,0 +1,12 @@
+=== ALERTA SOC - CONTA DE USUÁRIO REMOVIDA ===
+
+Data do relatório: 23/06/2026 16:29:17
+Total de contas removidas detectadas: 1
+
+Conta removida    : usuario_teste
+Domínio           : DESKTOP-5IBE0AN
+SID removido      : S-1-5-21-1764120652-1249086577-3640239003-1006
+Executado por     : vitin
+Domínio executor  : DESKTOP-5IBE0AN
+Data evento       : 23/06/2026 16:25:21
+----------------------------------------
