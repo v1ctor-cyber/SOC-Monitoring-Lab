@@ -1,0 +1,13 @@
+=== ALERTA SOC - SECURITY LOG APAGADO ===
+
+Data do relatório: 23/06/2026 16:24:07
+Total de eventos 1102 detectados: 1
+
+Usuário      : vitin
+Usuário SID  : S-1-5-21-1764120652-1249086577-3640239003-1001
+Host         : DESKTOP-5IBE0AN
+Logon ID     : 6996475206
+Processo ID  : 29420
+Record ID    : 49821070878112949
+Data evento  : 23/06/2026 16:20:01
+----------------------------------------

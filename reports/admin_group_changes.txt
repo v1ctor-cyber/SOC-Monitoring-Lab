@@ -1,0 +1,12 @@
+=== ALERTA SOC - ALTERAÇÃO EM GRUPO ADMINISTRATIVO ===
+
+Data do relatório: 23/06/2026 16:15:21
+Total de eventos administrativos detectados: 1
+
+Membro          : socadmin
+Membro SID      : S-1-5-21-1764120652-1249086577-3640239003-1005
+Grupo           : Administradores
+Grupo SID       : S-1-5-32-544
+Executado por   : vitin
+Data evento     : 23/06/2026 16:10:21
+----------------------------------------

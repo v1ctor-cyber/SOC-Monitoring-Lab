@@ -1,0 +1,54 @@
+=== RELATÓRIO SOC - LOGONS BEM-SUCEDIDOS ===
+
+Data do relatório: 23/06/2026 16:07:18
+Total de logons humanos detectados: 7
+
+Usuário     : vitinhosilva-2001@hotmail.com
+Domínio     : MicrosoftAccount
+Logon Type  : 7
+Processo    : C:\Windows\System32\lsass.exe
+IP          : -
+Data evento : 23/06/2026 15:35:49
+----------------------------------------
+Usuário     : vitinhosilva-2001@hotmail.com
+Domínio     : MicrosoftAccount
+Logon Type  : 7
+Processo    : C:\Windows\System32\lsass.exe
+IP          : -
+Data evento : 23/06/2026 15:35:49
+----------------------------------------
+Usuário     : vitinhosilva-2001@hotmail.com
+Domínio     : MicrosoftAccount
+Logon Type  : 11
+Processo    : C:\Windows\System32\svchost.exe
+IP          : 127.0.0.1
+Data evento : 23/06/2026 15:35:49
+----------------------------------------
+Usuário     : vitinhosilva-2001@hotmail.com
+Domínio     : MicrosoftAccount
+Logon Type  : 11
+Processo    : C:\Windows\System32\svchost.exe
+IP          : 127.0.0.1
+Data evento : 23/06/2026 15:35:49
+----------------------------------------
+Usuário     : DWM-45
+Domínio     : Window Manager
+Logon Type  : 2
+Processo    : C:\Windows\System32\winlogon.exe
+IP          : -
+Data evento : 23/06/2026 14:39:08
+----------------------------------------
+Usuário     : DWM-45
+Domínio     : Window Manager
+Logon Type  : 2
+Processo    : C:\Windows\System32\winlogon.exe
+IP          : -
+Data evento : 23/06/2026 14:39:08
+----------------------------------------
+Usuário     : UMFD-45
+Domínio     : Font Driver Host
+Logon Type  : 2
+Processo    : C:\Windows\System32\winlogon.exe
+IP          : -
+Data evento : 23/06/2026 14:39:07
+----------------------------------------
