@@ -1,61 +1,46 @@
-import subprocess
-import csv
-from io import StringIO
-from datetime import datetime
-from pathlib import Path
+"""Detecta criação de contas de usuário local (Event ID 4720)."""
 
-comando = [
-    "powershell",
-    "-Command",
-    r"""
-    $eventos = Get-WinEvent -FilterHashtable @{
-        LogName='Security'
-        Id=4720
-    } -MaxEvents 10
+import sys
 
-    $saida = foreach ($evento in $eventos) {
-        $props = $evento.Properties
+from core.collector import ColetaEventosError, coletar_eventos
+from core.report import escrever_relatorio_eventos
 
-        [PSCustomObject]@{
-            UsuarioCriado  = $props[0].Value
-            DominioCriado  = $props[1].Value
-            UsuarioCriador = $props[4].Value
-            DominioCriador = $props[5].Value
-            Data           = $evento.TimeCreated
-        }
-    }
-
-    $saida | ConvertTo-Csv -NoTypeInformation
-    """
+EVENT_ID = 4720
+COLUNAS = {
+    "UsuarioCriado": 0,
+    "DominioCriado": 1,
+    "UsuarioCriador": 4,
+    "DominioCriador": 5,
+}
+CAMINHO_RELATORIO = "reports/contas_criadas.txt"
+CAMPOS = [
+    ("Conta criada", "UsuarioCriado"),
+    ("Domínio", "DominioCriado"),
+    ("Criada por", "UsuarioCriador"),
+    ("Data evento", "Data"),
 ]
 
-resultado = subprocess.run(comando, capture_output=True, text=True)
 
-csv_texto = resultado.stdout.strip()
+def main() -> int:
+    try:
+        eventos = coletar_eventos(EVENT_ID, COLUNAS, max_events=10)
+    except ColetaEventosError as erro:
+        print(f"ERRO ao coletar eventos: {erro}", file=sys.stderr)
+        return 1
 
-if not csv_texto:
-    print("Nenhum evento 4720 encontrado.")
-    exit()
+    escrever_relatorio_eventos(
+        CAMINHO_RELATORIO,
+        titulo="ALERTA SOC - CRIAÇÃO DE USUÁRIO",
+        eventos=eventos,
+        campos=CAMPOS,
+        rotulo_total="Total de contas criadas detectadas",
+    )
 
-leitor = csv.DictReader(StringIO(csv_texto))
-eventos = list(leitor)
+    print("=== SOC Monitoring Lab ===")
+    print(f"Eventos 4720 detectados: {len(eventos)}")
+    print(f"Relatório salvo em: {CAMINHO_RELATORIO}")
+    return 0
 
-Path("reports").mkdir(exist_ok=True)
 
-caminho_relatorio = "reports/contas_criadas.txt"
-
-with open(caminho_relatorio, "w", encoding="utf-8") as arquivo:
-    arquivo.write("=== ALERTA SOC - CRIAÇÃO DE USUÁRIO ===\n\n")
-    arquivo.write(f"Data do relatório: {datetime.now():%d/%m/%Y %H:%M:%S}\n")
-    arquivo.write(f"Total de contas criadas detectadas: {len(eventos)}\n\n")
-
-    for evento in eventos:
-        arquivo.write(f"Conta criada : {evento['UsuarioCriado']}\n")
-        arquivo.write(f"Domínio      : {evento['DominioCriado']}\n")
-        arquivo.write(f"Criada por   : {evento['UsuarioCriador']}\n")
-        arquivo.write(f"Data evento  : {evento['Data']}\n")
-        arquivo.write("-" * 40 + "\n")
-
-print("=== SOC Monitoring Lab ===\n")
-print(f"Eventos 4720 detectados: {len(eventos)}")
-print(f"Relatório salvo em: {caminho_relatorio}")
+if __name__ == "__main__":
+    sys.exit(main())

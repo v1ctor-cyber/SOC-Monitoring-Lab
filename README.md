@@ -187,12 +187,23 @@ Capacidades:
 ```text
 SOC-Monitoring-Lab/
 
-├── scripts/
+├── core/                 # coleta de eventos + escrita de relatório (compartilhado)
+│   ├── collector.py       # fala com o Windows Event Log via PowerShell
+│   ├── report.py          # formata e escreve os relatórios .txt
+│   └── mapeamentos.py      # SID → nome (usuários/grupos deste laboratório)
+├── scripts/              # um detector por Event ID, curto e declarativo
 ├── reports/
+│   └── examples/          # amostras sanitizadas do formato de saída
 ├── screenshots/
+├── run_all.py             # roda todos os detectores em sequência
 ├── README.md
 └── .gitignore
 ```
+
+Cada detector em `scripts/` só declara **o que** coletar (Event ID, colunas,
+filtros); a lógica de **como** coletar e **como** reportar vive em `core/` e
+é reutilizada por todos. Isso evita ter a mesma lógica de subprocess/CSV
+duplicada em 7 arquivos diferentes.
 
 ---
 
@@ -231,16 +242,24 @@ Todos os eventos foram processados automaticamente e convertidos em relatórios 
 
 ## Como Executar
 
-Execute os scripts como Administrador:
+Execute a partir da **raiz do projeto**, como Administrador. Como os
+detectores importam código de `core/`, rode como módulo (`-m`) em vez de
+apontar o caminho do arquivo direto — assim o Python enxerga o pacote:
 
 ```powershell
-python scripts\detector_bruteforce.py
-python scripts\detector_logon_sucesso.py
-python scripts\detector_usuario_criado.py
-python scripts\detector_usuario_removido.py
-python scripts\detector_grupo_privilegiado.py
-python scripts\detector_admin_group.py
-python scripts\detector_log_cleared.py
+python -m scripts.detector_bruteforce
+python -m scripts.detector_logon_sucesso
+python -m scripts.detector_usuario_criado
+python -m scripts.detector_usuario_removido
+python -m scripts.detector_grupo_privilegiado
+python -m scripts.detector_admin_group
+python -m scripts.detector_log_cleared
+```
+
+Ou rode todos de uma vez:
+
+```powershell
+python run_all.py
 ```
 
 Os relatórios serão gerados automaticamente na pasta:
@@ -262,6 +281,8 @@ reports/
 * [x] Event ID 4728
 * [x] Event ID 4732
 * [x] Event ID 1102
+* [x] Refatoração modular — coleta e escrita de relatório centralizadas em `core/`
+* [x] Remoção de PII de relatórios/screenshots versionados
 
 ### Próximas Implementações
 

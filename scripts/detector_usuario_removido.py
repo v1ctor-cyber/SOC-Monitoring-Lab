@@ -1,61 +1,49 @@
-import subprocess
-import csv
-from io import StringIO
-from datetime import datetime
-from pathlib import Path
+"""Audita remoção de contas de usuário local (Event ID 4726)."""
 
-comando = [
-    "powershell",
-    "-Command",
-    r"""
-    $eventos = Get-WinEvent -FilterHashtable @{
-        LogName='Security'
-        Id=4726
-    } -MaxEvents 10
+import sys
 
-    $saida = foreach ($evento in $eventos) {
-        $props = $evento.Properties
+from core.collector import ColetaEventosError, coletar_eventos
+from core.report import escrever_relatorio_eventos
 
-        [PSCustomObject]@{
-            UsuarioRemovido = $props[0].Value
-            DominioRemovido = $props[1].Value
-            SIDRemovido     = $props[2].Value
-            ExecutadoPor    = $props[4].Value
-            DominioExecutor = $props[5].Value
-            Data            = $evento.TimeCreated
-        }
-    }
-
-    $saida | ConvertTo-Csv -NoTypeInformation
-    """
+EVENT_ID = 4726
+COLUNAS = {
+    "UsuarioRemovido": 0,
+    "DominioRemovido": 1,
+    "SIDRemovido": 2,
+    "ExecutadoPor": 4,
+    "DominioExecutor": 5,
+}
+CAMINHO_RELATORIO = "reports/contas_removidas.txt"
+CAMPOS = [
+    ("Conta removida", "UsuarioRemovido"),
+    ("Domínio", "DominioRemovido"),
+    ("SID removido", "SIDRemovido"),
+    ("Executado por", "ExecutadoPor"),
+    ("Domínio executor", "DominioExecutor"),
+    ("Data evento", "Data"),
 ]
 
-resultado = subprocess.run(comando, capture_output=True, text=True)
-csv_texto = resultado.stdout.strip()
 
-if not csv_texto:
-    print("Nenhum evento 4726 encontrado.")
-    exit()
+def main() -> int:
+    try:
+        eventos = coletar_eventos(EVENT_ID, COLUNAS, max_events=10)
+    except ColetaEventosError as erro:
+        print(f"ERRO ao coletar eventos: {erro}", file=sys.stderr)
+        return 1
 
-eventos = list(csv.DictReader(StringIO(csv_texto)))
+    escrever_relatorio_eventos(
+        CAMINHO_RELATORIO,
+        titulo="ALERTA SOC - CONTA DE USUÁRIO REMOVIDA",
+        eventos=eventos,
+        campos=CAMPOS,
+        rotulo_total="Total de contas removidas detectadas",
+    )
 
-Path("reports").mkdir(exist_ok=True)
-caminho_relatorio = "reports/contas_removidas.txt"
+    print("=== SOC Monitoring Lab ===")
+    print(f"Eventos 4726 detectados: {len(eventos)}")
+    print(f"Relatório salvo em: {CAMINHO_RELATORIO}")
+    return 0
 
-with open(caminho_relatorio, "w", encoding="utf-8") as arquivo:
-    arquivo.write("=== ALERTA SOC - CONTA DE USUÁRIO REMOVIDA ===\n\n")
-    arquivo.write(f"Data do relatório: {datetime.now():%d/%m/%Y %H:%M:%S}\n")
-    arquivo.write(f"Total de contas removidas detectadas: {len(eventos)}\n\n")
 
-    for evento in eventos:
-        arquivo.write(f"Conta removida    : {evento['UsuarioRemovido']}\n")
-        arquivo.write(f"Domínio           : {evento['DominioRemovido']}\n")
-        arquivo.write(f"SID removido      : {evento['SIDRemovido']}\n")
-        arquivo.write(f"Executado por     : {evento['ExecutadoPor']}\n")
-        arquivo.write(f"Domínio executor  : {evento['DominioExecutor']}\n")
-        arquivo.write(f"Data evento       : {evento['Data']}\n")
-        arquivo.write("-" * 40 + "\n")
-
-print("=== SOC Monitoring Lab ===\n")
-print(f"Eventos 4726 detectados: {len(eventos)}")
-print(f"Relatório salvo em: {caminho_relatorio}")
+if __name__ == "__main__":
+    sys.exit(main())

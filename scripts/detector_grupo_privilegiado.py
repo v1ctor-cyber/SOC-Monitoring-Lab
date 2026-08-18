@@ -1,79 +1,60 @@
-import subprocess
-import csv
-from io import StringIO
-from datetime import datetime
-from pathlib import Path
+"""Monitora alterações em grupos (Event ID 4728) e resolve SIDs para nomes."""
 
-usuarios = {
-    "S-1-5-21-1764120652-1249086577-3640239003-1003": "CodexSandboxOffline",
-    "S-1-5-21-1764120652-1249086577-3640239003-1004": "CodexSandboxOnline",
-    "S-1-5-21-1764120652-1249086577-3640239003-1001": "vitin",
+import sys
+
+from core.collector import ColetaEventosError, coletar_eventos
+from core.mapeamentos import nome_grupo, nome_usuario
+from core.report import escrever_relatorio_eventos
+
+EVENT_ID = 4728
+COLUNAS = {
+    "MembroSID": 1,
+    "Dominio": 3,
+    "GrupoSID": 4,
+    "ExecutadoPor": 6,
+    "DominioExecutor": 7,
 }
-
-grupos = {
-    "S-1-5-21-1764120652-1249086577-3640239003-513": "CodexSandboxUsers",
-    "S-1-5-32-544": "Administradores",
-    "S-1-5-32-545": "Usuários",
-}
-
-comando = [
-    "powershell",
-    "-Command",
-    r"""
-    $eventos = Get-WinEvent -FilterHashtable @{
-        LogName='Security'
-        Id=4728
-    } -MaxEvents 10
-
-    $saida = foreach ($evento in $eventos) {
-        $props = $evento.Properties
-
-        [PSCustomObject]@{
-            MembroSID       = $props[1].Value
-            Dominio         = $props[3].Value
-            GrupoSID        = $props[4].Value
-            ExecutadoPor    = $props[6].Value
-            DominioExecutor = $props[7].Value
-            Data            = $evento.TimeCreated
-        }
-    }
-
-    $saida | ConvertTo-Csv -NoTypeInformation
-    """
+CAMINHO_RELATORIO = "reports/grupos_privilegiados.txt"
+CAMPOS = [
+    ("Membro", "MembroNome"),
+    ("Membro SID", "MembroSID"),
+    ("Grupo", "GrupoNome"),
+    ("Grupo SID", "GrupoSID"),
+    ("Executado por", "ExecutadoPor"),
+    ("Data evento", "Data"),
 ]
 
-resultado = subprocess.run(comando, capture_output=True, text=True)
-csv_texto = resultado.stdout.strip()
 
-if not csv_texto:
-    print("Nenhum evento 4728 encontrado.")
-    exit()
+def adicionar_nomes(evento: dict) -> dict:
+    """Acrescenta os nomes legíveis a partir dos SIDs, sem alterar o original."""
+    return {
+        **evento,
+        "MembroNome": nome_usuario(evento["MembroSID"]),
+        "GrupoNome": nome_grupo(evento["GrupoSID"]),
+    }
 
-eventos = list(csv.DictReader(StringIO(csv_texto)))
 
-Path("reports").mkdir(exist_ok=True)
-caminho_relatorio = "reports/grupos_privilegiados.txt"
+def main() -> int:
+    try:
+        eventos = coletar_eventos(EVENT_ID, COLUNAS, max_events=10)
+    except ColetaEventosError as erro:
+        print(f"ERRO ao coletar eventos: {erro}", file=sys.stderr)
+        return 1
 
-with open(caminho_relatorio, "w", encoding="utf-8") as arquivo:
-    arquivo.write("=== ALERTA SOC - ALTERAÇÃO EM GRUPO ===\n\n")
-    arquivo.write(f"Data do relatório: {datetime.now():%d/%m/%Y %H:%M:%S}\n")
-    arquivo.write(f"Total de eventos 4728 detectados: {len(eventos)}\n\n")
+    escrever_relatorio_eventos(
+        CAMINHO_RELATORIO,
+        titulo="ALERTA SOC - ALTERAÇÃO EM GRUPO",
+        eventos=eventos,
+        campos=CAMPOS,
+        rotulo_total="Total de eventos 4728 detectados",
+        transformar=adicionar_nomes,
+    )
 
-    for evento in eventos:
-        membro_sid = evento["MembroSID"]
-        grupo_sid = evento["GrupoSID"]
+    print("=== SOC Monitoring Lab ===")
+    print(f"Eventos 4728 detectados: {len(eventos)}")
+    print(f"Relatório salvo em: {CAMINHO_RELATORIO}")
+    return 0
 
-        membro_nome = usuarios.get(membro_sid, "Desconhecido")
-        grupo_nome = grupos.get(grupo_sid, "Desconhecido")
 
-        arquivo.write(f"Membro          : {membro_nome}\n")
-        arquivo.write(f"Membro SID      : {membro_sid}\n")
-        arquivo.write(f"Grupo           : {grupo_nome}\n")
-        arquivo.write(f"Grupo SID       : {grupo_sid}\n")
-        arquivo.write(f"Executado por   : {evento['ExecutadoPor']}\n")
-        arquivo.write(f"Data evento     : {evento['Data']}\n")
-        arquivo.write("-" * 40 + "\n")
-
-print("=== SOC Monitoring Lab ===\n")
-print(f"Eventos 4728 detectados: {len(eventos)}")
-print(f"Relatório salvo em: {caminho_relatorio}")
+if __name__ == "__main__":
+    sys.exit(main())

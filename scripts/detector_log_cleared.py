@@ -1,63 +1,51 @@
-import subprocess
-import csv
-from io import StringIO
-from datetime import datetime
-from pathlib import Path
+"""Detecta limpeza do Security Log (Event ID 1102) — possível evasão de rastros."""
 
-comando = [
-    "powershell",
-    "-Command",
-    r"""
-    $eventos = Get-WinEvent -FilterHashtable @{
-        LogName='Security'
-        Id=1102
-    } -MaxEvents 10
+import sys
 
-    $saida = foreach ($evento in $eventos) {
-        $props = $evento.Properties
+from core.collector import ColetaEventosError, coletar_eventos
+from core.report import escrever_relatorio_eventos
 
-        [PSCustomObject]@{
-            UsuarioSID = $props[0].Value
-            Usuario    = $props[1].Value
-            Host       = $props[2].Value
-            LogonID    = $props[3].Value
-            ProcessoID = $props[4].Value
-            RecordID   = $props[5].Value
-            Data       = $evento.TimeCreated
-        }
-    }
-
-    $saida | ConvertTo-Csv -NoTypeInformation
-    """
+EVENT_ID = 1102
+COLUNAS = {
+    "UsuarioSID": 0,
+    "Usuario": 1,
+    "Host": 2,
+    "LogonID": 3,
+    "ProcessoID": 4,
+    "RecordID": 5,
+}
+CAMINHO_RELATORIO = "reports/security_log_cleared.txt"
+CAMPOS = [
+    ("Usuário", "Usuario"),
+    ("Usuário SID", "UsuarioSID"),
+    ("Host", "Host"),
+    ("Logon ID", "LogonID"),
+    ("Processo ID", "ProcessoID"),
+    ("Record ID", "RecordID"),
+    ("Data evento", "Data"),
 ]
 
-resultado = subprocess.run(comando, capture_output=True, text=True)
-csv_texto = resultado.stdout.strip()
 
-if not csv_texto:
-    print("Nenhum evento 1102 encontrado.")
-    exit()
+def main() -> int:
+    try:
+        eventos = coletar_eventos(EVENT_ID, COLUNAS, max_events=10)
+    except ColetaEventosError as erro:
+        print(f"ERRO ao coletar eventos: {erro}", file=sys.stderr)
+        return 1
 
-eventos = list(csv.DictReader(StringIO(csv_texto)))
+    escrever_relatorio_eventos(
+        CAMINHO_RELATORIO,
+        titulo="ALERTA SOC - SECURITY LOG APAGADO",
+        eventos=eventos,
+        campos=CAMPOS,
+        rotulo_total="Total de eventos 1102 detectados",
+    )
 
-Path("reports").mkdir(exist_ok=True)
-caminho_relatorio = "reports/security_log_cleared.txt"
+    print("=== SOC Monitoring Lab ===")
+    print(f"Eventos 1102 detectados: {len(eventos)}")
+    print(f"Relatório salvo em: {CAMINHO_RELATORIO}")
+    return 0
 
-with open(caminho_relatorio, "w", encoding="utf-8") as arquivo:
-    arquivo.write("=== ALERTA SOC - SECURITY LOG APAGADO ===\n\n")
-    arquivo.write(f"Data do relatório: {datetime.now():%d/%m/%Y %H:%M:%S}\n")
-    arquivo.write(f"Total de eventos 1102 detectados: {len(eventos)}\n\n")
 
-    for evento in eventos:
-        arquivo.write(f"Usuário      : {evento['Usuario']}\n")
-        arquivo.write(f"Usuário SID  : {evento['UsuarioSID']}\n")
-        arquivo.write(f"Host         : {evento['Host']}\n")
-        arquivo.write(f"Logon ID     : {evento['LogonID']}\n")
-        arquivo.write(f"Processo ID  : {evento['ProcessoID']}\n")
-        arquivo.write(f"Record ID    : {evento['RecordID']}\n")
-        arquivo.write(f"Data evento  : {evento['Data']}\n")
-        arquivo.write("-" * 40 + "\n")
-
-print("=== SOC Monitoring Lab ===\n")
-print(f"Eventos 1102 detectados: {len(eventos)}")
-print(f"Relatório salvo em: {caminho_relatorio}")
+if __name__ == "__main__":
+    sys.exit(main())
