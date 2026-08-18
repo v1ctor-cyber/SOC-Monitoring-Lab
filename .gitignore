@@ -1,3 +1,8 @@
-**pycache**/
+__pycache__/
 *.pyc
 .vscode/
+
+# Relatórios reais gerados localmente (podem conter dados sensíveis do ambiente).
+# Apenas os exemplos sanitizados em reports/examples/ ficam versionados.
+reports/*.txt
+!reports/examples/

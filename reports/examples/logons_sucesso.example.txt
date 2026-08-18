@@ -1,0 +1,19 @@
+=== RELATÓRIO SOC - LOGONS BEM-SUCEDIDOS ===
+
+Data do relatório: 23/06/2026 16:07:18
+Total de logons humanos detectados: 2
+
+Usuário     : usuario.teste@lab.local
+Domínio     : MicrosoftAccount
+Logon Type  : 7
+Processo    : C:\Windows\System32\lsass.exe
+IP          : -
+Data evento : 23/06/2026 15:35:49
+----------------------------------------
+Usuário     : usuario.teste@lab.local
+Domínio     : MicrosoftAccount
+Logon Type  : 11
+Processo    : C:\Windows\System32\svchost.exe
+IP          : 127.0.0.1
+Data evento : 23/06/2026 15:35:49
+----------------------------------------
